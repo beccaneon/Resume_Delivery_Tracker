@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Service Tracker | Team Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --pending: #6366f1;
+            --bg: #f8fafc;
+            --bg-secondary: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, #f1f5f9 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, #1e3a8a 100%);
+            color: white;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            border-bottom: 3px solid var(--primary-light);
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            background: var(--bg-secondary);
+            padding: 0.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.25rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            background: var(--bg);
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card.success {
+            border-left-color: var(--success);
+        }
+
+        .stat-card.warning {
+            border-left-color: var(--warning);
+        }
+
+        .stat-card.danger {
+            border-left-color: var(--danger);
+        }
+
+        .stat-card h3 {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-card .subtitle {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .form-section {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        input, select, textarea {
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1e3a8a;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .table-section {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .table-header h2 {
+            font-size: 1.3rem;
+            color: var(--text-primary);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--bg);
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        tbody tr:hover {
+            background: var(--bg);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .status-waiting {
+            background: #dbeafe;
+            color: var(--primary);
+        }
+
+        .status-delivered {
+            background: #d1fae5;
+            color: var(--success);
+        }
+
+        .status-overdue {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+
+        .status-approved {
+            background: #d1fae5;
+            color: var(--success);
+        }
+
+        .status-pending {
+            background: #e0e7ff;
+            color: var(--pending);
+        }
+
+        .days-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.2rem;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+
+        .service-badge {
+            display: inline-block;
+            padding: 0.3rem 0.7rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            background: #f0f9ff;
+            color: var(--primary);
+        }
+
+        .timeline {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .timeline-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary);
+        }
+
+        .timeline-dot.completed {
+            background: var(--success);
+        }
+
+        .timeline-dot.pending {
+            background: var(--pending);
+        }
+
+        .timeline-dot.overdue {
+            background: var(--danger);
+        }
+
+        .email-log-item {
+            background: var(--bg);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 3px solid var(--primary);
+            border-radius: 4px;
+        }
+
+        .email-log-item.important {
+            border-left-color: var(--danger);
+            background: #fef2f2;
+        }
+
+        .email-log-item h4 {
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .email-log-item .meta {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .email-log-item .content {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            padding-top: 0.5rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-bar select {
+            min-width: 150px;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border-left: 4px solid var(--warning);
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid var(--success);
+        }
+
+        .alert-danger {
+            background: #fee2e2;
+            color: #7f1d1d;
+            border-left: 4px solid var(--danger);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-wrapper {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .action-btns {
+                flex-direction: column;
+            }
+
+            .tabs {
+                gap: 0.25rem;
+            }
+
+            .tab-btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>📋 Resume Service Tracker</h1>
+        <p>Real-time team dashboard for resume, LinkedIn & cover letter deliveries</p>
+    </header>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+            <button class="tab-btn" onclick="switchTab('tracker')">Active Tracking</button>
+            <button class="tab-btn" onclick="switchTab('addNew')">Add New Candidate</button>
+            <button class="tab-btn" onclick="switchTab('emailLog')">Email Log</button>
+            <button class="tab-btn" onclick="switchTab('analytics')">Analytics</button>
+        </div>
+
+        <!-- DASHBOARD TAB -->
+        <div id="dashboard" class="tab-content active">
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <h3>Resume Pro - Active</h3>
+                    <div class="number" id="resumeProActive">0</div>
+                    <div class="subtitle">Awaiting responses</div>
+                </div>
+                <div class="stat-card success">
+                    <h3>Package - Active</h3>
+                    <div class="number" id="packageActive">0</div>
+                    <div class="subtitle">Awaiting responses</div>
+                </div>
+                <div class="stat-card warning">
+                    <h3>Overdue Deliveries</h3>
+                    <div class="number" id="overdueCount">0</div>
+                    <div class="subtitle">Need immediate action</div>
+                </div>
+                <div class="stat-card danger">
+                    <h3>Awaiting Responses</h3>
+                    <div class="number" id="awaitingResponses">0</div>
+                    <div class="subtitle">Over 3 days pending</div>
+                </div>
+            </div>
+
+            <div class="alert alert-warning">
+                <span>⏰ <strong>Tip:</strong> Check the "Overdue Deliveries" and "Awaiting Responses" sections regularly to stay on top of deadlines.</span>
+            </div>
+
+            <div class="table-section">
+                <div class="table-header">
+                    <h2>🚨 Critical Actions Needed</h2>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Candidate</th>
+                                <th>Email</th>
+                                <th>Service</th>
+                                <th>Current Stage</th>
+                                <th>Days Pending</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="criticalTable">
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-secondary);">No critical items yet</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TRACKER TAB -->
+        <div id="tracker" class="tab-content">
+            <div class="filter-bar">
+                <select id="serviceFilter" onchange="filterTable()">
+                    <option value="">All Services</option>
+                    <option value="Resume Pro">Resume Pro</option>
+                    <option value="Resume Package">Resume Package</option>
+                </select>
+                <select id="statusFilter" onchange="filterTable()">
+                    <option value="">All Statuses</option>
+                    <option value="draft1">1st Draft Sent</option>
+                    <option value="draft2">2nd Draft Sent</option>
+                    <option value="draft3">3rd Draft Sent</option>
+                    <option value="approved">Approved</option>
+                    <option value="completed">Completed</option>
+                </select>
+            </div>
+
+            <div class="table-section">
+                <div class="table-header">
+                    <h2>📊 All Candidates - Active Tracking</h2>
+                    <span id="totalRows">Total: 0</span>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Candidate Name</th>
+                                <th>Email</th>
+                                <th>Service</th>
+                                <th>1st Draft Timeline</th>
+                                <th>Response</th>
+                                <th>2nd Draft Timeline</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trackerTable">
+                            <tr>
+                                <td colspan="8" style="text-align: center; padding: 2rem; color: var(--text-secondary);">No data added yet. Start by clicking "Add New Candidate"</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADD NEW TAB -->
+        <div id="addNew" class="tab-content">
+            <div class="form-section">
+                <h2 style="margin-bottom: 1.5rem; color: var(--text-primary);">Add New Candidate</h2>
+
+                <div class="alert alert-success">
+                    <span>✅ All timeline dates are auto-calculated based on the resume receipt date. Just fill in the basic info and next steps!</span>
+                </div>
+
+                <form id="candidateForm" onsubmit="addCandidate(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Candidate Name *</label>
+                            <input type="text" id="candidateName" required placeholder="John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address *</label>
+                            <input type="email" id="candidateEmail" required placeholder="john@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Number</label>
+                            <input type="tel" id="candidateContact" placeholder="+91 XXXXX XXXXX">
+                        </div>
+                        <div class="form-group">
+                            <label>Service *</label>
+                            <select id="serviceType" required onchange="updateTimeline()">
+                                <option value="">-- Select Service --</option>
+                                <option value="Resume Pro">Resume Pro (Resume + 3 Drafts)</option>
+                                <option value="Resume Package">Resume Package (Resume + 3 Drafts + LinkedIn + Cover Letter)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Resume Received Date *</label>
+                            <input type="date" id="resumeReceived" required onchange="updateTimeline()">
+                        </div>
+                        <div class="form-group">
+                            <label>Assigned To (Team Member)</label>
+                            <input type="text" id="assignedTo" placeholder="e.g., John Smith">
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 2rem; margin-bottom: 1rem; color: var(--text-primary);">Auto-Calculated Timeline</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>1st Draft Expected Delivery (5 days) *</label>
+                            <input type="date" id="draft1Expected" readonly>
+                            <div class="days-label">System calculated</div>
+                        </div>
+                        <div class="form-group">
+                            <label>2nd Draft Expected Delivery (3 days after response) *</label>
+                            <input type="date" id="draft2Expected" readonly>
+                            <div class="days-label">Updates after response logged</div>
+                        </div>
+                        <div class="form-group">
+                            <label>3rd Draft Expected Delivery (2 days after response) *</label>
+                            <input type="date" id="draft3Expected" readonly>
+                            <div class="days-label">Updates after 2nd draft approval</div>
+                        </div>
+                        <div class="form-group">
+                            <label>LinkedIn & Cover (After Final Approval)</label>
+                            <input type="date" id="linkedInCoverExpected" readonly>
+                            <div class="days-label">Only for Resume Package</div>
+                        </div>
+                    </div>
+
+                    <div class="form-grid" style="margin-top: 2rem;">
+                        <div class="form-group">
+                            <label>Additional Notes</label>
+                            <textarea id="notes" placeholder="Any special requests or notes..."></textarea>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button type="submit" class="btn btn-primary">Add Candidate</button>
+                        <button type="reset" class="btn btn-secondary">Clear Form</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- EMAIL LOG TAB -->
+        <div id="emailLog" class="tab-content">
+            <div class="form-section">
+                <h2 style="margin-bottom: 1.5rem; color: var(--text-primary);">Log Email Response / Update</h2>
+
+                <form id="emailLogForm" onsubmit="logEmail(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Candidate Email *</label>
+                            <input type="email" id="emailCandidate" required placeholder="john@example.com" list="emailList">
+                            <datalist id="emailList"></datalist>
+                        </div>
+                        <div class="form-group">
+                            <label>Response Type *</label>
+                            <select id="responseType" required onchange="updateEmailFields()">
+                                <option value="">-- Select Type --</option>
+                                <option value="draft1_sent">1st Draft Sent</option>
+                                <option value="draft1_response">Response to 1st Draft</option>
+                                <option value="draft2_sent">2nd Draft Sent</option>
+                                <option value="draft2_response">Response to 2nd Draft</option>
+                                <option value="draft3_sent">3rd Draft Sent</option>
+                                <option value="draft3_response">Response to 3rd Draft (Approved)</option>
+                                <option value="linkedin_cover_sent">LinkedIn & Cover Letter Sent</option>
+                                <option value="other">Other Communication</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Date/Time *</label>
+                            <input type="datetime-local" id="emailDateTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label>From / To</label>
+                            <input type="text" id="emailFrom" placeholder="e.g., Candidate's Name">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email Subject</label>
+                        <input type="text" id="emailSubject" placeholder="Email subject line">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email Content / Summary *</label>
+                        <textarea id="emailContent" required placeholder="Paste the email content or summarize it..."></textarea>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="emailImportant"> Mark as Important/Action Required
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Response Action Needed? (auto-flag for follow-up)</label>
+                            <select id="actionNeeded">
+                                <option value="none">No action needed</option>
+                                <option value="follow_up">Follow-up needed</option>
+                                <option value="revision">Revision requested</option>
+                                <option value="clarification">Clarification needed</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button type="submit" class="btn btn-primary">Log Email</button>
+                        <button type="reset" class="btn btn-secondary">Clear</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="table-section" style="margin-top: 2rem;">
+                <div class="table-header">
+                    <h2>📧 Email Log</h2>
+                </div>
+                <div id="emailLogList" style="padding: 2rem;">
+                    <div class="empty-state">
+                        <p>No emails logged yet.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ANALYTICS TAB -->
+        <div id="analytics" class="tab-content">
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <h3>Total Candidates</h3>
+                    <div class="number" id="totalCandidates">0</div>
+                </div>
+                <div class="stat-card success">
+                    <h3>Completed</h3>
+                    <div class="number" id="completedCount">0</div>
+                    <div class="subtitle" id="completedPercent">0%</div>
+                </div>
+                <div class="stat-card warning">
+                    <h3>In Progress</h3>
+                    <div class="number" id="inProgressCount">0</div>
+                </div>
+                <div class="stat-card danger">
+                    <h3>Avg Response Time</h3>
+                    <div class="number" id="avgResponseTime">-</div>
+                    <div class="subtitle">days</div>
+                </div>
+            </div>
+
+            <div class="table-section">
+                <div class="table-header">
+                    <h2>📈 Performance Metrics</h2>
+                </div>
+                <div style="padding: 2rem;">
+                    <h3 style="margin-bottom: 1rem;">Timeline Adherence</h3>
+                    <div style="margin-bottom: 2rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>1st Draft Delivery (5 days)</span>
+                            <span id="metric1stDraft">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress1st" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>2nd Draft Delivery (3 days)</span>
+                            <span id="metric2ndDraft">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress2nd" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>3rd Draft Delivery (2 days)</span>
+                            <span id="metric3rdDraft">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress3rd" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Service Breakdown</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <div style="padding: 1rem; background: var(--bg); border-radius: 6px;">
+                            <div style="font-weight: 600; margin-bottom: 0.5rem;">Resume Pro</div>
+                            <div style="font-size: 1.5rem; color: var(--primary); font-weight: 700;" id="resumeProCount">0</div>
+                        </div>
+                        <div style="padding: 1rem; background: var(--bg); border-radius: 6px;">
+                            <div style="font-weight: 600; margin-bottom: 0.5rem;">Resume Package</div>
+                            <div style="font-size: 1.5rem; color: var(--success); font-weight: 700;" id="packageCount">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize with sample data
+        let candidates = JSON.parse(localStorage.getItem('candidates')) || [];
+        let emailLogs = JSON.parse(localStorage.getItem('emailLogs')) || [];
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'tracker') renderTrackerTable();
+            if (tabName === 'emailLog') renderEmailLog();
+            if (tabName === 'analytics') renderAnalytics();
+            if (tabName === 'dashboard') updateDashboard();
+        }
+
+        function calculateDate(baseDate, daysToAdd) {
+            const date = new Date(baseDate);
+            date.setDate(date.getDate() + daysToAdd);
+            return date.toISOString().split('T')[0];
+        }
+
+        function updateTimeline() {
+            const resumeDate = document.getElementById('resumeReceived').value;
+            if (resumeDate) {
+                document.getElementById('draft1Expected').value = calculateDate(resumeDate, 5);
+                document.getElementById('draft2Expected').value = calculateDate(resumeDate, 8); // 5 + 3
+                document.getElementById('draft3Expected').value = calculateDate(resumeDate, 10); // 5 + 3 + 2
+                
+                const service = document.getElementById('serviceType').value;
+                if (service === 'Resume Package') {
+                    document.getElementById('linkedInCoverExpected').value = calculateDate(resumeDate, 10);
+                }
+            }
+        }
+
+        function addCandidate(e) {
+            e.preventDefault();
+
+            const candidate = {
+                id: Date.now(),
+                name: document.getElementById('candidateName').value,
+                email: document.getElementById('candidateEmail').value,
+                contact: document.getElementById('candidateContact').value,
+                service: document.getElementById('serviceType').value,
+                resumeReceived: document.getElementById('resumeReceived').value,
+                draft1Expected: document.getElementById('draft1Expected').value,
+                draft1Sent: null,
+                draft1Response: null,
+                draft2Expected: null,
+                draft2Sent: null,
+                draft2Response: null,
+                draft3Expected: null,
+                draft3Sent: null,
+                draft3Response: null,
+                linkedInCoverExpected: document.getElementById('linkedInCoverExpected').value || null,
+                linkedInCoverSent: null,
+                status: 'draft1',
+                assignedTo: document.getElementById('assignedTo').value,
+                notes: document.getElementById('notes').value,
+                createdAt: new Date().toISOString()
+            };
+
+            candidates.push(candidate);
+            localStorage.setItem('candidates', JSON.stringify(candidates));
+
+            alert('✅ Candidate added successfully!');
+            document.getElementById('candidateForm').reset();
+            updateEmailDatalist();
+            updateDashboard();
+        }
+
+        function logEmail(e) {
+            e.preventDefault();
+
+            const candidateEmail = document.getElementById('emailCandidate').value;
+            const candidate = candidates.find(c => c.email === candidateEmail);
+
+            if (!candidate) {
+                alert('⚠️ Candidate not found. Please select a valid email.');
+                return;
+            }
+
+            const emailLog = {
+                id: Date.now(),
+                candidateId: candidate.id,
+                candidateName: candidate.name,
+                email: candidateEmail,
+                responseType: document.getElementById('responseType').value,
+                timestamp: document.getElementById('emailDateTime').value,
+                from: document.getElementById('emailFrom').value,
+                subject: document.getElementById('emailSubject').value,
+                content: document.getElementById('emailContent').value,
+                important: document.getElementById('emailImportant').checked,
+                actionNeeded: document.getElementById('actionNeeded').value
+            };
+
+            emailLogs.push(emailLog);
+            localStorage.setItem('emailLogs', JSON.stringify(emailLogs));
+
+            // Update candidate status based on response
+            updateCandidateStatus(candidate, emailLog.responseType);
+
+            alert('✅ Email logged successfully!');
+            document.getElementById('emailLogForm').reset();
+            renderEmailLog();
+            updateDashboard();
+        }
+
+        function updateCandidateStatus(candidate, responseType) {
+            const statusMap = {
+                'draft1_sent': 'draft1',
+                'draft1_response': 'awaiting_draft2',
+                'draft2_sent': 'draft2',
+                'draft2_response': 'awaiting_draft3',
+                'draft3_sent': 'draft3',
+                'draft3_response': 'approved',
+                'linkedin_cover_sent': 'completed'
+            };
+
+            if (statusMap[responseType]) {
+                candidate.status = statusMap[responseType];
+
+                // Update expected delivery dates
+                if (responseType === 'draft1_response') {
+                    candidate.draft2Expected = calculateDate(new Date().toISOString().split('T')[0], 3);
+                }
+                if (responseType === 'draft2_response') {
+                    candidate.draft3Expected = calculateDate(new Date().toISOString().split('T')[0], 2);
+                }
+
+                localStorage.setItem('candidates', JSON.stringify(candidates));
+            }
+        }
+
+        function renderTrackerTable() {
+            const tbody = document.getElementById('trackerTable');
+            document.getElementById('totalRows').textContent = `Total: ${candidates.length}`;
+
+            if (candidates.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--text-secondary);">No candidates added yet</td></tr>';
+                return;
+            }
+
+            const serviceFilter = document.getElementById('serviceFilter')?.value || '';
+            const statusFilter = document.getElementById('statusFilter')?.value || '';
+
+            const filtered = candidates.filter(c => {
+                return (!serviceFilter || c.service === serviceFilter) &&
+                       (!statusFilter || c.status === statusFilter);
+            });
+
+            tbody.innerHTML = filtered.map(candidate => {
+                const statusMap = {
+                    'draft1': '1️⃣ Sent',
+                    'awaiting_draft2': '⏳ Awaiting Response',
+                    'draft2': '2️⃣ Sent',
+                    'awaiting_draft3': '⏳ Awaiting Response',
+                    'draft3': '3️⃣ Sent',
+                    'approved': '✅ Approved',
+                    'completed': '🎉 Completed'
+                };
+
+                return `
+                    <tr>
+                        <td><strong>${candidate.name}</strong></td>
+                        <td><a href="mailto:${candidate.email}">${candidate.email}</a></td>
+                        <td><span class="service-badge">${candidate.service.split(' ')[0]}</span></td>
+                        <td>
+                            <small>Expected: ${candidate.draft1Expected}</small><br>
+                            <small style="color: var(--text-secondary);">Sent: ${candidate.draft1Sent || '—'}</small>
+                        </td>
+                        <td>
+                            <small style="color: var(--text-secondary);">Received: ${candidate.draft1Response || '—'}</small>
+                        </td>
+                        <td>
+                            <small>Expected: ${candidate.draft2Expected || '—'}</small><br>
+                            <small style="color: var(--text-secondary);">Sent: ${candidate.draft2Sent || '—'}</small>
+                        </td>
+                        <td>
+                            <span class="status-badge status-${candidate.status === 'completed' ? 'delivered' : 'pending'}">
+                                ${statusMap[candidate.status] || candidate.status}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="btn btn-sm btn-primary" onclick="editCandidate(${candidate.id})">Edit</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteCandidate(${candidate.id})">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterTable() {
+            renderTrackerTable();
+        }
+
+        function renderEmailLog() {
+            const logList = document.getElementById('emailLogList');
+
+            if (emailLogs.length === 0) {
+                logList.innerHTML = '<div class="empty-state"><p>No emails logged yet.</p></div>';
+                return;
+            }
+
+            logList.innerHTML = [...emailLogs].reverse().map(log => {
+                const typeMap = {
+                    'draft1_sent': '📤 1st Draft Sent',
+                    'draft1_response': '📥 Response to 1st Draft',
+                    'draft2_sent': '📤 2nd Draft Sent',
+                    'draft2_response': '📥 Response to 2nd Draft',
+                    'draft3_sent': '📤 3rd Draft Sent',
+                    'draft3_response': '📥 Final Approval',
+                    'linkedin_cover_sent': '📤 LinkedIn & Cover Letter Sent',
+                    'other': '💬 Other Communication'
+                };
+
+                return `
+                    <div class="email-log-item ${log.important ? 'important' : ''}">
+                        <h4>${typeMap[log.responseType] || log.responseType}</h4>
+                        <div class="meta">
+                            <strong>${log.candidateName}</strong> (${log.email}) | ${new Date(log.timestamp).toLocaleString()} 
+                            ${log.actionNeeded !== 'none' ? `| ⚠️ <strong>${log.actionNeeded}</strong>` : ''}
+                        </div>
+                        <div class="content">
+                            <strong>Subject:</strong> ${log.subject || '(No subject)'}<br>
+                            <strong>Content:</strong><br>
+                            ${log.content.substring(0, 500)}${log.content.length > 500 ? '...' : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateDashboard() {
+            const resumeProCount = candidates.filter(c => c.service === 'Resume Pro' && c.status !== 'completed').length;
+            const packageCount = candidates.filter(c => c.service === 'Resume Package' && c.status !== 'completed').length;
+
+            const overdueCount = candidates.filter(c => {
+                const expectedDate = new Date(c.draft1Expected);
+                return new Date() > expectedDate && !c.draft1Sent;
+            }).length;
+
+            const awaitingResponses = candidates.filter(c => {
+                return c.status.includes('awaiting');
+            }).length;
+
+            document.getElementById('resumeProActive').textContent = resumeProCount;
+            document.getElementById('packageActive').textContent = packageCount;
+            document.getElementById('overdueCount').textContent = overdueCount;
+            document.getElementById('awaitingResponses').textContent = awaitingResponses;
+
+            // Populate critical table
+            const critical = candidates.filter(c => {
+                const expectedDate = new Date(c.draft1Expected);
+                return (new Date() > expectedDate && !c.draft1Sent) || c.status.includes('awaiting');
+            });
+
+            const criticalTable = document.getElementById('criticalTable');
+            if (critical.length === 0) {
+                criticalTable.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-secondary);">✅ All on track! No critical items.</td></tr>';
+            } else {
+                criticalTable.innerHTML = critical.map(c => {
+                    const expectedDate = new Date(c.draft1Expected);
+                    const daysOverdue = Math.floor((new Date() - expectedDate) / (1000 * 60 * 60 * 24));
+                    const statusText = c.status.includes('awaiting') ? 'Awaiting Response' : 'Overdue Delivery';
+
+                    return `
+                        <tr>
+                            <td><strong>${c.name}</strong></td>
+                            <td><a href="mailto:${c.email}">${c.email}</a></td>
+                            <td><span class="service-badge">${c.service.split(' ')[0]}</span></td>
+                            <td>${statusText}</td>
+                            <td><strong style="color: var(--danger);">${Math.max(daysOverdue, 0)} days</strong></td>
+                            <td><button class="btn btn-sm btn-danger" onclick="alert('Send reminder email to ' + '${c.email}')">Send Reminder</button></td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+        }
+
+        function renderAnalytics() {
+            const total = candidates.length;
+            const completed = candidates.filter(c => c.status === 'completed').length;
+            const inProgress = total - completed;
+
+            document.getElementById('totalCandidates').textContent = total;
+            document.getElementById('completedCount').textContent = completed;
+            document.getElementById('inProgressCount').textContent = inProgress;
+            document.getElementById('completedPercent').textContent = total > 0 ? Math.round((completed / total) * 100) + '%' : '0%';
+
+            const resumeProCount = candidates.filter(c => c.service === 'Resume Pro').length;
+            const packageCount = candidates.filter(c => c.service === 'Resume Package').length;
+            document.getElementById('resumeProCount').textContent = resumeProCount;
+            document.getElementById('packageCount').textContent = packageCount;
+
+            // Calculate metrics
+            const onTimeDraft1 = candidates.filter(c => {
+                return c.draft1Sent && new Date(c.draft1Sent) <= new Date(c.draft1Expected);
+            }).length;
+
+            document.getElementById('metric1stDraft').textContent = total > 0 ? Math.round((onTimeDraft1 / total) * 100) + '%' : '0%';
+            document.getElementById('progress1st').style.width = (total > 0 ? (onTimeDraft1 / total) * 100 : 0) + '%';
+        }
+
+        function updateEmailDatalist() {
+            const datalist = document.getElementById('emailList');
+            datalist.innerHTML = candidates.map(c => `<option value="${c.email}">`).join('');
+        }
+
+        function deleteCandidate(id) {
+            if (confirm('Are you sure you want to delete this candidate?')) {
+                candidates = candidates.filter(c => c.id !== id);
+                localStorage.setItem('candidates', JSON.stringify(candidates));
+                updateDashboard();
+                renderTrackerTable();
+            }
+        }
+
+        function editCandidate(id) {
+            alert('Edit functionality coming soon. For now, you can delete and re-add.');
+        }
+
+        // Initialize
+        updateEmailDatalist();
+        updateDashboard();
+
+        // Set today's date for email datetime
+        const now = new Date();
+        const dateTimeString = now.toISOString().slice(0, 16);
+        document.getElementById('emailDateTime').value = dateTimeString;
+    </script>
+</body>
+</html>
